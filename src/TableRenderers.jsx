@@ -47,7 +47,7 @@ function redColorScaleGenerator(values) {
   const max = Math.max.apply(Math, values);
   return x => {
     // eslint-disable-next-line no-magic-numbers
-    const nonRed = 255 - Math.round(255 * (x - min) / (max - min));
+    const nonRed = 255 - Math.round((255 * (x - min)) / (max - min));
     return {backgroundColor: `rgb(255,${nonRed},${nonRed})`};
   };
 }
@@ -58,6 +58,7 @@ function makeRenderer(opts = {}) {
       const pivotData = new PivotData(this.props);
       const colAttrs = pivotData.props.cols;
       const rowAttrs = pivotData.props.rows;
+      const metricAttr = pivotData.props.metrics;
       const rowKeys = pivotData.getRowKeys();
       const colKeys = pivotData.getColKeys();
       const grandTotalAggregator = pivotData.getAggregator([], []);
@@ -65,6 +66,7 @@ function makeRenderer(opts = {}) {
       let valueCellColors = () => {};
       let rowTotalColors = () => {};
       let colTotalColors = () => {};
+
       if (opts.heatmapMode) {
         const colorScaleGenerator = this.props.tableColorScaleGenerator;
         const rowTotalValues = colKeys.map(x =>
@@ -138,13 +140,13 @@ function makeRenderer(opts = {}) {
             {colAttrs.map(function(c, j) {
               return (
                 <tr key={`colAttr${j}`}>
-                  {j === 0 &&
-                    rowAttrs.length !== 0 && (
-                      <th colSpan={rowAttrs.length} rowSpan={colAttrs.length} />
-                    )}
+                  {j === 0 && rowAttrs.length !== 0 && (
+                    <th colSpan={rowAttrs.length} rowSpan={colAttrs.length} />
+                  )}
                   <th className="pvtAxisLabel">{c}</th>
                   {colKeys.map(function(colKey, i) {
-                    const x = spanSize(colKeys, i, j);
+                    // const x = spanSize(colKeys, i, j);
+                    const x = metricAttr.length;
                     if (x === -1) {
                       return null;
                     }
@@ -155,7 +157,7 @@ function makeRenderer(opts = {}) {
                         colSpan={x}
                         rowSpan={
                           j === colAttrs.length - 1 && rowAttrs.length !== 0
-                            ? 2
+                            ? 1
                             : 1
                         }
                       >
@@ -187,6 +189,13 @@ function makeRenderer(opts = {}) {
                     </th>
                   );
                 })}
+                <th></th>
+                {colKeys.map(function(colKey) {
+                  return pivotData.metricKeys.map(metric => (
+                    <th>{`${metric.key}_${metric.aggregatorName}`}</th>
+                  ));
+                })}
+
                 <th className="pvtTotalLabel">
                   {colAttrs.length === 0 ? 'Totals' : null}
                 </th>
@@ -221,23 +230,26 @@ function makeRenderer(opts = {}) {
                   })}
                   {colKeys.map(function(colKey, j) {
                     const aggregator = pivotData.getAggregator(rowKey, colKey);
-                    return (
-                      <td
-                        className="pvtVal"
-                        key={`pvtVal${i}-${j}`}
-                        onClick={
-                          getClickHandler &&
-                          getClickHandler(aggregator.value(), rowKey, colKey)
-                        }
-                        style={valueCellColors(
-                          rowKey,
-                          colKey,
-                          aggregator.value()
-                        )}
-                      >
-                        {aggregator.format(aggregator.value())}
-                      </td>
-                    );
+                      
+                    return pivotData.metricKeys.map((metricKey,w) => {
+                      return (
+                        <td
+                          className="pvtVal"
+                          key={`pvtVal${i}-${j}-${metricKey}-${w}`}
+                          onClick={
+                            getClickHandler &&
+                            getClickHandler(aggregator.value(), rowKey, colKey)
+                          }
+                          style={valueCellColors(
+                            rowKey,
+                            colKey,
+                            aggregator.value()
+                          )}
+                        >
+                          {aggregator.format(aggregator.value())}
+                        </td>
+                      );
+                    });
                   })}
                   <td
                     className="pvtTotal"

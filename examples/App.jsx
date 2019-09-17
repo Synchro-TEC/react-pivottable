@@ -46,9 +46,11 @@ export default class App extends React.Component {
                 data: tips,
                 rows: ['Payer Gender'],
                 cols: ['Party Size'],
-                aggregatorName: 'Sum over Sum',
+                metrics:['Tip'],
+                // aggregatorName: 'Sum over Sum',
+                aggregatorName: 'Multiple',
                 vals: ['Tip', 'Total Bill'],
-                rendererName: 'Grouped Column Chart',
+                rendererName: 'Table',
                 sorters: {
                     Meal: sortAs(['Lunch', 'Dinner']),
                     'Day of Week': sortAs([

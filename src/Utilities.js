@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import {plugin} from 'postcss';
 
 /*
  * decaffeinate suggestions:
@@ -167,7 +168,9 @@ const getSort = function(sorters, attr) {
 
 // aggregator templates default to US number formatting but this is overrideable
 const usFmt = numberFormat();
+
 const usFmtInt = numberFormat({digitsAfterDecimal: 0});
+
 const usFmtPct = numberFormat({
   digitsAfterDecimal: 1,
   scaler: 100,
@@ -348,6 +351,49 @@ const aggregatorTemplates = {
     };
   },
 
+  multiple(formatter = usFmt) {
+    return function(metrics, metricsAggregators) {
+      return function() {
+        return metrics.map(m => {
+          let op = 'count';
+
+          if (m in metricsAggregators) {
+            op = metricsAggregators[m];
+          }
+          switch (op) {
+            case 'count':
+              return {
+                count: 0,
+                push() {
+                  this.count++;
+                },
+                value() {
+                  return this.count;
+                },
+                format: formatter,
+              };
+
+            case 'sum':
+              return {
+                sum: 0,
+                push(record) {
+                  if (!isNaN(parseFloat(record[m]))) {
+                    this.sum += parseFloat(record[m]);
+                  }
+                },
+                value() {
+                  return this.sum;
+                },
+                format: formatter,
+              };
+            default:
+              return null;
+          }
+        });
+      };
+    };
+  },
+
   sumOverSum(formatter = usFmt) {
     return function([num, denom]) {
       return function() {
@@ -418,6 +464,7 @@ aggregatorTemplates.stdev = (ddof, f) =>
 // default aggregators & renderers use US naming and number formatting
 const aggregators = (tpl => ({
   Count: tpl.count(usFmtInt),
+  Multiple: tpl.multiple(usFmt),
   'Count Unique Values': tpl.countUnique(usFmtInt),
   'List Unique Values': tpl.listUnique(', '),
   Sum: tpl.sum(usFmt),
@@ -479,7 +526,7 @@ const zeroPad = number => `0${number}`.substr(-2, 2); // eslint-disable-line no-
 
 const derivers = {
   bin(col, binWidth) {
-    return record => record[col] - record[col] % binWidth;
+    return record => record[col] - (record[col] % binWidth);
   },
   dateFormat(
     col,
@@ -536,15 +583,30 @@ class PivotData {
       'PivotData'
     );
 
-    this.aggregator = this.props.aggregators[this.props.aggregatorName](
-      this.props.vals
-    );
+    if (this.props.aggregatorName === 'Multiple') {
+      this.aggregator = this.props.aggregators[this.props.aggregatorName](
+        this.props.metrics,
+        this.props.metricsAggregators
+      );
+    } else {
+      this.aggregator = this.props.aggregators[this.props.aggregatorName](
+        this.props.vals
+      );
+    }
+
+    this.metricKeys = this.props.metrics.map(value => ({
+      key: value,
+      aggregatorName: 'Count',
+    }));
     this.tree = {};
     this.rowKeys = [];
     this.colKeys = [];
     this.rowTotals = {};
     this.colTotals = {};
-    this.allTotal = this.aggregator(this, [], []);
+    this.allTotal =
+      this.props.aggregatorName === 'Multiple'
+        ? this.aggregator(this, [], [])[0]
+        : this.aggregator(this, [], []);
     this.sorted = false;
 
     // iterate through input, accumulating data for cells
@@ -663,7 +725,10 @@ class PivotData {
     if (rowKey.length !== 0) {
       if (!this.rowTotals[flatRowKey]) {
         this.rowKeys.push(rowKey);
-        this.rowTotals[flatRowKey] = this.aggregator(this, rowKey, []);
+        this.rowTotals[flatRowKey] =
+          this.props.aggregatorName === 'Multiple'
+            ? this.aggregator(this, rowKey, [])[0]
+            : this.aggregator(this, rowKey, []);
       }
       this.rowTotals[flatRowKey].push(record);
     }
@@ -671,7 +736,10 @@ class PivotData {
     if (colKey.length !== 0) {
       if (!this.colTotals[flatColKey]) {
         this.colKeys.push(colKey);
-        this.colTotals[flatColKey] = this.aggregator(this, [], colKey);
+        this.colTotals[flatColKey] =
+          this.props.aggregatorName === 'Multiple'
+            ? this.aggregator(this, [], colKey)[0]
+            : this.aggregator(this, [], colKey);
       }
       this.colTotals[flatColKey].push(record);
     }
@@ -681,11 +749,10 @@ class PivotData {
         this.tree[flatRowKey] = {};
       }
       if (!this.tree[flatRowKey][flatColKey]) {
-        this.tree[flatRowKey][flatColKey] = this.aggregator(
-          this,
-          rowKey,
-          colKey
-        );
+        this.tree[flatRowKey][flatColKey] =
+          this.props.aggregatorName === 'Multiple'
+            ? this.aggregator(this, rowKey, colKey)[0]
+            : this.aggregator(this, rowKey, colKey);
       }
       this.tree[flatRowKey][flatColKey].push(record);
     }
@@ -701,6 +768,7 @@ class PivotData {
       agg = this.colTotals[flatColKey];
     } else if (colKey.length === 0) {
       agg = this.rowTotals[flatRowKey];
+      console.log(agg);
     } else {
       agg = this.tree[flatRowKey][flatColKey];
     }
@@ -773,6 +841,8 @@ PivotData.defaultProps = {
   aggregators: aggregators,
   cols: [],
   rows: [],
+  metrics: [],
+  mettricsAggregators: {},
   vals: [],
   aggregatorName: 'Count',
   sorters: {},

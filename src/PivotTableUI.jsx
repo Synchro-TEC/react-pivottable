@@ -54,7 +54,7 @@ export class DraggableAttribute extends React.Component {
           style={{
             display: 'block',
             cursor: 'initial',
-            zIndex: this.props.zIndex
+            zIndex: this.props.zIndex,
           }}
           onClick={() => this.props.moveFilterBoxToTop(this.props.name)}
         >
@@ -135,7 +135,7 @@ export class DraggableAttribute extends React.Component {
   }
 
   toggleFilterBox() {
-    this.setState({ open: !this.state.open});
+    this.setState({open: !this.state.open});
     this.props.moveFilterBoxToTop(this.props.name);
   }
 
@@ -368,8 +368,15 @@ class PivotTableUI extends React.PureComponent {
   }
 
   render() {
-    const numValsAllowed =
-      this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0;
+
+    let numValsAllowed;
+
+    if(this.props.aggregatorName === "Multiple"){
+      numValsAllowed = this.data[0].length;
+    }else{
+      numValsAllowed = this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0;
+    }
+  
 
     const rendererName =
       this.props.rendererName in this.props.renderers
@@ -472,6 +479,7 @@ class PivotTableUI extends React.PureComponent {
         e =>
           !this.props.rows.includes(e) &&
           !this.props.cols.includes(e) &&
+          !this.props.metrics.includes(e) &&
           !this.props.hiddenAttributes.includes(e) &&
           !this.props.hiddenFromDragDrop.includes(e)
       )
@@ -484,8 +492,22 @@ class PivotTableUI extends React.PureComponent {
       unusedAttrs,
       order => this.setState({unusedOrder: order}),
       `pvtAxisContainer pvtUnused ${
-        horizUnused ? 'pvtHorizList' : 'pvtVertList'
+        //   horizUnused ? 'pvtHorizList' : 'pvtVertList'
+        'pvtVertList'
       }`
+    );
+
+    const metricsAttrs = this.props.metrics.filter(
+      e =>
+        !this.props.hiddenAttributes.includes(e) &&
+  
+        !this.props.hiddenFromDragDrop.includes(e)
+    );
+
+    const metricsAttrsCell = this.makeDnDCell(
+      metricsAttrs,
+      this.propUpdater('metrics'),
+      'pvtAxisContainer pvtVertList pvtRows'
     );
 
     const colAttrs = this.props.cols.filter(
@@ -497,7 +519,8 @@ class PivotTableUI extends React.PureComponent {
     const colAttrsCell = this.makeDnDCell(
       colAttrs,
       this.propUpdater('cols'),
-      'pvtAxisContainer pvtHorizList pvtCols'
+      // 'pvtAxisContainer pvtHorizList pvtCols'
+      'pvtAxisContainer pvtVertList pvtCols'
     );
 
     const rowAttrs = this.props.rows.filter(
@@ -522,40 +545,111 @@ class PivotTableUI extends React.PureComponent {
 
     if (horizUnused) {
       return (
-        <table className="pvtUi">
-          <tbody onClick={() => this.setState({openDropdown: false})}>
-            <tr>
-              {rendererCell}
-              {unusedAttrsCell}
-            </tr>
-            <tr>
-              {aggregatorCell}
-              {colAttrsCell}
-            </tr>
-            <tr>
-              {rowAttrsCell}
-              {outputCell}
-            </tr>
-          </tbody>
-        </table>
+        <React.Fragment>
+          <table className="pvtUi">
+            <tbody onClick={() => this.setState({openDropdown: false})}>
+              <tr>
+                {rendererCell}
+                {aggregatorCell}
+              </tr>
+            </tbody>
+          </table>
+          <div style={{backgroundColor: '#e8e8e8', padding: 10}}>
+            <span
+              style={{fontWeight: 'bold', marginBottom: 5, display: 'block'}}
+            >
+              Atributos não utilizados
+            </span>
+            <div className="pvtCol">
+              <table className="pvtUi">
+                <tbody onClick={() => this.setState({openDropdown: false})}>
+                  <tr> {unusedAttrsCell}</tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              backgroundColor: '#e8e8e8',
+              padding: 10,
+            }}
+          >
+            <div style={{flex: 1, marginRight: 5}}>
+              <span
+                style={{fontWeight: 'bold', marginBottom: 5, display: 'block'}}
+              >
+                Linhas
+              </span>
+              <div className="pvtCol">
+                <table className="pvtUi">
+                  <tbody>
+                    <tr>{rowAttrsCell}</tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div style={{flex: 1, marginLeft: 5}}>
+              <span
+                style={{fontWeight: 'bold', marginBottom: 5, display: 'block'}}
+              >
+                Colunas
+              </span>
+              <div className="pvtCol">
+                <table className="pvtUi">
+                  <tbody>
+                    <tr> {colAttrsCell}</tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div style={{flex: 1, marginLeft: 5}}>
+              <span
+                style={{fontWeight: 'bold', marginBottom: 5, display: 'block'}}
+              >
+                Valores
+              </span>
+              <div className="pvtCol">
+                <table className="pvtUi">
+                  <tbody>
+                    <tr> {metricsAttrsCell}</tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <table className="pvtUi">
+            <tbody onClick={() => this.setState({openDropdown: false})}>
+              <tr>{outputCell}</tr>
+            </tbody>
+          </table>
+        </React.Fragment>
       );
     }
 
     return (
-      <table className="pvtUi">
-        <tbody onClick={() => this.setState({openDropdown: false})}>
-          <tr>
-            {rendererCell}
-            {aggregatorCell}
-            {colAttrsCell}
-          </tr>
-          <tr>
-            {unusedAttrsCell}
-            {rowAttrsCell}
-            {outputCell}
-          </tr>
-        </tbody>
-      </table>
+      <React.Fragment>
+        <table className="pvtUi">
+          <tbody onClick={() => this.setState({openDropdown: false})}>
+            <tr>
+              {rendererCell}
+              {aggregatorCell}
+              {colAttrsCell}
+            </tr>
+            <tr>
+              {unusedAttrsCell}
+              {rowAttrsCell}
+            </tr>
+          </tbody>
+        </table>
+        <table className="pvtUi">
+          <tbody onClick={() => this.setState({openDropdown: false})}>
+            <tr>{outputCell}</tr>
+          </tbody>
+        </table>
+      </React.Fragment>
     );
   }
 }
@@ -575,6 +669,10 @@ PivotTableUI.defaultProps = Object.assign({}, PivotTable.defaultProps, {
   hiddenFromDragDrop: [],
   unusedOrientationCutoff: 85,
   menuLimit: 500,
+  metrics: [],
+  metricsAggregators: {},
+  rows: [],
+  cols: [],
 });
 
 export default PivotTableUI;
