@@ -153,7 +153,7 @@ function makeScatterRenderer(PlotlyComponent) {
 
       rowKeys.map(rowKey => {
         colKeys.map(colKey => {
-          const v = pivotData.getAggregator(rowKey, colKey).value();
+          const v = pivotData.getAggregator(rowKey, colKey,null).value();
           if (v !== null) {
             data.x.push(colKey.join('-'));
             data.y.push(rowKey.join('-'));

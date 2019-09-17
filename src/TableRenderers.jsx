@@ -61,7 +61,7 @@ function makeRenderer(opts = {}) {
       const metricAttr = pivotData.props.metrics;
       const rowKeys = pivotData.getRowKeys();
       const colKeys = pivotData.getColKeys();
-      const grandTotalAggregator = pivotData.getAggregator([], []);
+      const grandTotalAggregator = pivotData.getAggregator([], [],null);
 
       let valueCellColors = () => {};
       let rowTotalColors = () => {};
@@ -70,11 +70,11 @@ function makeRenderer(opts = {}) {
       if (opts.heatmapMode) {
         const colorScaleGenerator = this.props.tableColorScaleGenerator;
         const rowTotalValues = colKeys.map(x =>
-          pivotData.getAggregator([], x).value()
+          pivotData.getAggregator([], x,null).value()
         );
         rowTotalColors = colorScaleGenerator(rowTotalValues);
         const colTotalValues = rowKeys.map(x =>
-          pivotData.getAggregator(x, []).value()
+          pivotData.getAggregator(x, [],null).value()
         );
         colTotalColors = colorScaleGenerator(colTotalValues);
 
@@ -82,7 +82,7 @@ function makeRenderer(opts = {}) {
           const allValues = [];
           rowKeys.map(r =>
             colKeys.map(c =>
-              allValues.push(pivotData.getAggregator(r, c).value())
+              allValues.push(pivotData.getAggregator(r, c,null).value())
             )
           );
           const colorScale = colorScaleGenerator(allValues);
@@ -91,7 +91,7 @@ function makeRenderer(opts = {}) {
           const rowColorScales = {};
           rowKeys.map(r => {
             const rowValues = colKeys.map(x =>
-              pivotData.getAggregator(r, x).value()
+              pivotData.getAggregator(r, x,null).value()
             );
             rowColorScales[r] = colorScaleGenerator(rowValues);
           });
@@ -100,7 +100,7 @@ function makeRenderer(opts = {}) {
           const colColorScales = {};
           colKeys.map(c => {
             const colValues = rowKeys.map(x =>
-              pivotData.getAggregator(x, c).value()
+              pivotData.getAggregator(x, c,null).value()
             );
             colColorScales[c] = colorScaleGenerator(colValues);
           });
@@ -191,8 +191,8 @@ function makeRenderer(opts = {}) {
                 })}
                 <th></th>
                 {colKeys.map(function(colKey) {
-                  return pivotData.metricKeys.map(metric => (
-                    <th>{`${metric.key}_${metric.aggregatorName}`}</th>
+                  return pivotData.metricsList.map(metric => (
+                    <th>{`${metric.name}_${metric.agg}`}</th>
                   ));
                 })}
 
@@ -205,7 +205,7 @@ function makeRenderer(opts = {}) {
 
           <tbody>
             {rowKeys.map(function(rowKey, i) {
-              const totalAggregator = pivotData.getAggregator(rowKey, []);
+              const totalAggregator = pivotData.getAggregator(rowKey, [],null);
               return (
                 <tr key={`rowKeyRow${i}`}>
                   {rowKey.map(function(txt, j) {
@@ -229,13 +229,15 @@ function makeRenderer(opts = {}) {
                     );
                   })}
                   {colKeys.map(function(colKey, j) {
-                    const aggregator = pivotData.getAggregator(rowKey, colKey);
-                      
-                    return pivotData.metricKeys.map((metricKey,w) => {
+                  
+
+                    return pivotData.metricsList.map((metric,w) => {
+                      const aggregator = pivotData.getAggregator(rowKey, colKey,metric.name);
+                      console.log(metric.name);
                       return (
                         <td
                           className="pvtVal"
-                          key={`pvtVal${i}-${j}-${metricKey}-${w}`}
+                          key={`pvtVal${i}-${j}-${metric.name}-${w}`}
                           onClick={
                             getClickHandler &&
                             getClickHandler(aggregator.value(), rowKey, colKey)
@@ -274,7 +276,7 @@ function makeRenderer(opts = {}) {
               </th>
 
               {colKeys.map(function(colKey, i) {
-                const totalAggregator = pivotData.getAggregator([], colKey);
+                const totalAggregator = pivotData.getAggregator([], colKey,null);
                 return (
                   <td
                     className="pvtTotal"
@@ -337,7 +339,7 @@ class TSVExportRenderer extends React.PureComponent {
     const result = rowKeys.map(r => {
       const row = r.map(x => x);
       colKeys.map(c => {
-        const v = pivotData.getAggregator(r, c).value();
+        const v = pivotData.getAggregator(r, c,null).value();
         row.push(v ? v : '');
       });
       return row;

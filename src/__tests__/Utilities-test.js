@@ -23,7 +23,7 @@ describe('  utils', function() {
       const pd = new utils.PivotData({data: aoaInput});
 
       it('has the correct grand total value', () =>
-        expect(pd.getAggregator([], []).value()).toBe(2));
+        expect(pd.getAggregator([], [],null).value()).toBe(2));
     });
 
     describe('with array-of-array input', function() {
@@ -35,7 +35,7 @@ describe('  utils', function() {
       });
 
       it('has the correct grand total value', () =>
-        expect(pd.getAggregator([], []).value()).toBe((1 + 3) / (2 + 4)));
+        expect(pd.getAggregator([], [],null).value()).toBe((1 + 3) / (2 + 4)));
     });
 
     describe('with array-of-object input', function() {
@@ -47,7 +47,7 @@ describe('  utils', function() {
       });
 
       it('has the correct grand total value', () =>
-        expect(pd.getAggregator([], []).value()).toBe((1 + 3) / (2 + 4)));
+        expect(pd.getAggregator([], [],null).value()).toBe((1 + 3) / (2 + 4)));
     });
 
     describe('with ragged array-of-object input', function() {
@@ -59,7 +59,7 @@ describe('  utils', function() {
       });
 
       it('has the correct grand total value', () =>
-        expect(pd.getAggregator([], []).value()).toBe((1 + 3) / (2 + 4)));
+        expect(pd.getAggregator([], [],null).value()).toBe((1 + 3) / (2 + 4)));
     });
 
     describe('with function input', function() {
@@ -74,7 +74,7 @@ describe('  utils', function() {
       });
 
       it('has the correct grand total value', () =>
-        expect(pd.getAggregator([], []).value()).toBe((1 + 3) / (2 + 4)));
+        expect(pd.getAggregator([], [],null).value()).toBe((1 + 3) / (2 + 4)));
     });
 
     describe('with rows/cols', function() {
@@ -105,7 +105,7 @@ describe('  utils', function() {
         let numNull = 0;
         for (const r of Array.from(pd.getRowKeys())) {
           for (const c of Array.from(pd.getColKeys())) {
-            if (pd.getAggregator(r, c).value() !== null) {
+            if (pd.getAggregator(r, c,null).value() !== null) {
               numNotNull++;
             } else {
               numNull++;
@@ -123,14 +123,14 @@ describe('  utils', function() {
       });
 
       it('has a correct spot-checked aggregator', function() {
-        const agg = pd.getAggregator(['Carol', 'yellow'], [102, 14]);
+        const agg = pd.getAggregator(['Carol', 'yellow',null], [102, 14]);
         const val = agg.value();
         expect(val).toBe(1);
         expect(agg.format(val)).toBe('1');
       });
 
       it('has a correct grand total aggregator', function() {
-        const agg = pd.getAggregator([], []);
+        const agg = pd.getAggregator([], [],null);
         const val = agg.value();
         expect(val).toBe(4);
         expect(agg.format(val)).toBe('4');
