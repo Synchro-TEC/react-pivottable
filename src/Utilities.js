@@ -765,9 +765,9 @@ class PivotData {
         this.tree[flatRowKey] = {};
       }
       if (!this.tree[flatRowKey][flatColKey]) {
-        
+       // console.log(this.aggregator(this, rowKey, colKey));
         this.tree[flatRowKey][flatColKey] = this.aggregator(this, rowKey, colKey);
-        console.log(this.aggregator(this, rowKey, colKey));
+       
        
       }
      
@@ -789,12 +789,17 @@ class PivotData {
       agg = this.rowTotals[flatRowKey];
     } else {
      
-      for(const e of this.tree[flatRowKey][flatColKey]){
-        if(e.attr === attr){
-          agg = e;
-          break;
+      
+      console.log(this.tree[flatRowKey][flatColKey]);
+      if(this.tree[flatRowKey][flatColKey]){
+        for(const e of this.tree[flatRowKey][flatColKey]){
+          if(e.attr === attr){
+            agg = e;
+            break;
+          }
         }
       }
+     
     }
     return (
       agg || {

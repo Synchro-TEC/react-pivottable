@@ -348,37 +348,37 @@ class PivotTableUI extends React.PureComponent {
         className={classes}
         onChange={onChange}
       >
-        {items.map(x => (
-          <DraggableAttribute
-            name={x}
-            key={x}
-            attrValues={this.attrValues[x]}
-            valueFilter={this.props.valueFilter[x] || {}}
-            sorter={getSort(this.props.sorters, x)}
-            menuLimit={this.props.menuLimit}
-            setValuesInFilter={this.setValuesInFilter.bind(this)}
-            addValuesToFilter={this.addValuesToFilter.bind(this)}
-            moveFilterBoxToTop={this.moveFilterBoxToTop.bind(this)}
-            removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
-            zIndex={this.state.zIndices[x] || this.state.maxZIndex}
-          />
-        ))}
+        {items.map(x => {
+          debugger;
+          return (
+            <DraggableAttribute
+              name={x}
+              key={x}
+              attrValues={this.attrValues[x]}
+              valueFilter={this.props.valueFilter[x] || {}}
+              sorter={getSort(this.props.sorters, x)}
+              menuLimit={this.props.menuLimit}
+              setValuesInFilter={this.setValuesInFilter.bind(this)}
+              addValuesToFilter={this.addValuesToFilter.bind(this)}
+              moveFilterBoxToTop={this.moveFilterBoxToTop.bind(this)}
+              removeValuesFromFilter={this.removeValuesFromFilter.bind(this)}
+              zIndex={this.state.zIndices[x] || this.state.maxZIndex}
+            />
+          );
+        })}
       </Sortable>
     );
   }
 
   render() {
-
     let numValsAllowed;
 
-    if(this.props.aggregatorName === "Multiple"){
+    if (this.props.aggregatorName === 'Multiple') {
       numValsAllowed = this.data[0].length;
-    }else{
-      numValsAllowed = this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0;
+    } else {
+      numValsAllowed =
+        this.props.aggregators[this.props.aggregatorName]([])().numInputs || 0;
     }
-
-    
-  
 
     const rendererName =
       this.props.rendererName in this.props.renderers
@@ -502,7 +502,6 @@ class PivotTableUI extends React.PureComponent {
     const metricsAttrs = this.props.metrics.filter(
       e =>
         !this.props.hiddenAttributes.includes(e) &&
-  
         !this.props.hiddenFromDragDrop.includes(e)
     );
 
