@@ -354,7 +354,7 @@ const aggregatorTemplates = {
   multiple(formatter = usFmt) {
     return function(metrics, metricsAggregators) {
       return function() {
-        return metrics.map(m => {
+        const x = metrics.map(m => {
           let op = 'count';
 
           if (m in metricsAggregators) {
@@ -363,7 +363,6 @@ const aggregatorTemplates = {
           switch (op) {
             case 'count':
               return {
-               
                 count: 0,
                 push() {
                   this.count++;
@@ -380,18 +379,20 @@ const aggregatorTemplates = {
                 sum: 0,
                 push(record) {
                   if (!isNaN(parseFloat(record[m]))) {
-                    this.sum += parseFloat(record[m]);
+                    this.sum += parseFloat(record[m].replace(/,/, '.'));
                   }
                 },
                 value() {
                   return this.sum;
                 },
                 format: formatter,
+                attr: m,
               };
             default:
               return null;
           }
         });
+        return x;
       };
     };
   },
@@ -437,7 +438,7 @@ const aggregatorTemplates = {
             return (
               this.inner.value() /
               data
-                .getAggregator(...Array.from(this.selector || []),null)
+                .getAggregator(...Array.from(this.selector || []), null)
                 .inner.value()
             );
           },
@@ -596,18 +597,17 @@ class PivotData {
       );
     }
     this.metricsList = this.props.metrics.map(m => {
-      if(m in this.props.metricsAggregators){
+      if (m in this.props.metricsAggregators) {
         return {
           name: m,
-          agg: this.props.metricsAggregators[m]
-        }
+          agg: this.props.metricsAggregators[m],
+        };
       }
-        return {
-          name: m,
-          agg: 'count',
-        }
-      
-    })
+      return {
+        name: m,
+        agg: 'count',
+      };
+    });
 
     this.metricKeys = this.props.metrics.map(value => ({
       key: value,
@@ -689,7 +689,7 @@ class PivotData {
   sortKeys() {
     if (!this.sorted) {
       this.sorted = true;
-      const v = (r, c) => this.getAggregator(r, c,null).value();
+      const v = (r, c) => this.getAggregator(r, c, null).value();
       switch (this.props.rowOrder) {
         case 'value_a_to_z':
           this.rowKeys.sort((a, b) => naturalSort(v(a, []), v(b, [])));
@@ -766,14 +766,20 @@ class PivotData {
       }
       if (!this.tree[flatRowKey][flatColKey]) {
        // console.log(this.aggregator(this, rowKey, colKey));
-        this.tree[flatRowKey][flatColKey] = this.aggregator(this, rowKey, colKey);
-       
-       
+        this.tree[flatRowKey][flatColKey] = this.aggregator(
+          this,
+          rowKey,
+          colKey
+        );
       }
-     
-      this.tree[flatRowKey][flatColKey].forEach(a => {
-        a.push(record);
-      });
+      if (this.tree[flatRowKey][flatColKey].length) {
+        this.tree[flatRowKey][flatColKey].forEach(a => {
+          // console.log(a);
+          a.push(record);
+        });
+      } else {
+        this.tree[flatRowKey][flatColKey].push(record);
+      }
     }
   }
 
@@ -788,19 +794,18 @@ class PivotData {
     } else if (colKey.length === 0) {
       agg = this.rowTotals[flatRowKey];
     } else {
-     
-      
-      console.log(this.tree[flatRowKey][flatColKey]);
-      if(this.tree[flatRowKey][flatColKey]){
-        for(const e of this.tree[flatRowKey][flatColKey]){
-          if(e.attr === attr){
+      // console.log(this.tree[flatRowKey][flatColKey]);
+      if (this.tree[flatRowKey][flatColKey]) {
+        for (const e of this.tree[flatRowKey][flatColKey]) {
+          if (e.attr === attr) {
+           // console.log(e);
             agg = e;
             break;
           }
         }
       }
-     
     }
+    // console.log(agg);
     return (
       agg || {
         value() {

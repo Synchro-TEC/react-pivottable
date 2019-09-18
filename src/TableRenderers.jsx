@@ -224,11 +224,14 @@ function makeRenderer(opts = {}) {
                   })}
                   {colKeys.map(function(colKey, j) {
                     return pivotData.metricsList.map((metric, w) => {
+                      // console.log(`---- ${rowKey} ---- ${colKey} ----`)
+                      // console.log(metric);
                       const aggregator = pivotData.getAggregator(
                         rowKey,
                         colKey,
                         metric.name
                       );
+                      // console.log(aggregator);
                       return (
                         <td
                           className="pvtVal"

@@ -349,7 +349,6 @@ class PivotTableUI extends React.PureComponent {
         onChange={onChange}
       >
         {items.map(x => {
-          debugger;
           return (
             <DraggableAttribute
               name={x}
@@ -555,20 +554,6 @@ class PivotTableUI extends React.PureComponent {
               </tr>
             </tbody>
           </table>
-          <div style={{backgroundColor: '#e8e8e8', padding: 10}}>
-            <span
-              style={{fontWeight: 'bold', marginBottom: 5, display: 'block'}}
-            >
-              Atributos não utilizados
-            </span>
-            <div className="pvtCol">
-              <table className="pvtUi">
-                <tbody onClick={() => this.setState({openDropdown: false})}>
-                  <tr> {unusedAttrsCell}</tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
 
           <div
             style={{
@@ -579,6 +564,20 @@ class PivotTableUI extends React.PureComponent {
             }}
           >
             <div style={{flex: 1, marginRight: 5}}>
+              <span
+                style={{fontWeight: 'bold', marginBottom: 5, display: 'block'}}
+              >
+                Atributos não utilizados
+              </span>
+              <div className="pvtCol">
+                <table className="pvtUi">
+                  <tbody onClick={() => this.setState({openDropdown: false})}>
+                    <tr> {unusedAttrsCell}</tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div style={{flex: 1, marginLeft: 5}}>
               <span
                 style={{fontWeight: 'bold', marginBottom: 5, display: 'block'}}
               >

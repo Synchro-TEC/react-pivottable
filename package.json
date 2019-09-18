@@ -45,7 +45,9 @@
   },
   "homepage": "https://github.com/plotly/react-pivottable#readme",
   "dependencies": {
+    "fs": "^0.0.1-security",
     "immutability-helper": "^2.3.1",
+    "json-loader": "^0.5.7",
     "prop-types": "^15.5.10",
     "react-draggable": "^3.0.3",
     "react-sortablejs": "^1.3.4",
