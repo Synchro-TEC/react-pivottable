@@ -42,27 +42,27 @@ export default class App extends React.Component {
   componentWillMount() {
     this.setState({
       mode: 'demo',
-     // filename: 'Sample Dataset: Tips',
+      // filename: 'Sample Dataset: Tips',
       pivotState: {
         data: data,
-        rows:['Region','Rep'],
+        rows: ['Region', 'Rep'],
         cols: ['Item'],
-        metrics:['Units','Unit Price'],
-       // rows: ['Payer Gender'],
-       // cols: ['Party Size'],
-       // metrics: ['Tip'],
+        metrics: ['Units', 'Unit Price'],
+        // rows: ['Payer Gender'],
+        // cols: ['Party Size'],
+        // metrics: ['Tip'],
         // aggregatorName: 'Sum over Sum',
         aggregatorName: 'Multiple',
         metricsAggregators: {
-            "Unit Price": 'sum',
-            "Units": 'count',
+          'Unit Price': 'sum',
+          Units: 'count',
         },
-       // vals: ['Tip', 'Total Bill'],
+        // vals: ['Tip', 'Total Bill'],
         rendererName: 'Table',
-       // sorters: {
-      //    Meal: sortAs(['Lunch', 'Dinner']),
-       //   'Day of Week': sortAs(['Thursday', 'Friday', 'Saturday', 'Sunday']),
-      //  },
+        // sorters: {
+        //    Meal: sortAs(['Lunch', 'Dinner']),
+        //   'Day of Week': sortAs(['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        //  },
         plotlyOptions: {width: 900, height: 500},
         plotlyConfig: {},
         /* tableOptions: {
@@ -78,20 +78,20 @@ export default class App extends React.Component {
     });
   }
 
-//   componentDidMount() {
-//     const file = fs.createReadStream('data.csv');
-//     Papa.parse(file, {
-//       worker: true,
-//       skipEmptyLines: true,
-//       error: e => alert(e),
-//       complete: parsed =>
-//         this.setState({
-//           mode: 'file',
-//           filename: 'data.csv',
-//           pivotState: {data: parsed.data, aggregatorName: 'Multiple'},
-//         }),
-//     });
-//   }
+  //   componentDidMount() {
+  //     const file = fs.createReadStream('data.csv');
+  //     Papa.parse(file, {
+  //       worker: true,
+  //       skipEmptyLines: true,
+  //       error: e => alert(e),
+  //       complete: parsed =>
+  //         this.setState({
+  //           mode: 'file',
+  //           filename: 'data.csv',
+  //           pivotState: {data: parsed.data, aggregatorName: 'Multiple'},
+  //         }),
+  //     });
+  //   }
 
   onDrop(files) {
     this.setState(
@@ -132,37 +132,6 @@ export default class App extends React.Component {
   render() {
     return (
       <div>
-        <div className="row text-center">
-          <div className="col-md-3 col-md-offset-3">
-            <p>Try it right now on a file...</p>
-            <Dropzone
-              onDrop={this.onDrop.bind(this)}
-              accept="text/csv"
-              className="dropzone"
-              activeClassName="dropzoneActive"
-              rejectClassName="dropzoneReject"
-            >
-              <p>
-                Drop a CSV file here, or click to choose a file from your
-                computer.
-              </p>
-            </Dropzone>
-          </div>
-          <div className="col-md-3 text-center">
-            <p>...or paste some data:</p>
-            <textarea
-              value={this.state.textarea}
-              onChange={this.onType.bind(this)}
-              placeholder="Paste from a spreadsheet or CSV-like file"
-            />
-          </div>
-        </div>
-        <div className="row text-center">
-          <p>
-            <em>Note: the data never leaves your browser!</em>
-          </p>
-          <br />
-        </div>
         <div className="row">
           <h2 className="text-center">{this.state.filename}</h2>
           <br />

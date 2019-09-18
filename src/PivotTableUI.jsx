@@ -549,8 +549,8 @@ class PivotTableUI extends React.PureComponent {
           <table className="pvtUi">
             <tbody onClick={() => this.setState({openDropdown: false})}>
               <tr>
-                {rendererCell}
-                {aggregatorCell}
+                {/* rendererCell*/}
+                {/* aggregatorCell*/}
               </tr>
             </tbody>
           </table>
