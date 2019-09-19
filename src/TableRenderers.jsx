@@ -1,3 +1,4 @@
+/* eslint-disable no-inline-comments */
 import React from 'react';
 import PropTypes from 'prop-types';
 import {PivotData} from './Utilities';
@@ -146,7 +147,6 @@ function makeRenderer(opts = {}) {
                   )}
                   <th className="pvtAxisLabel">{c}</th>
                   {colKeys.map(function(colKey, i) {
-                    // const x = spanSize(colKeys, i, j);
                     const x = metricAttr.length;
                     if (x === -1) {
                       return null;
@@ -201,17 +201,13 @@ function makeRenderer(opts = {}) {
                     >{`${metric.name} ${metric.agg}`}</th>
                   ));
                 })}
-
-                {/* <th className="pvtTotalLabel">
-                  {colAttrs.length === 0 ? 'Totals' : null}
-              </th>*/}
               </tr>
             )}
           </thead>
 
           <tbody>
-            {rowKeys.map(function(rowKey, i) {
-             
+            {/* Build row key cells*/
+              rowKeys.map(function(rowKey, i) {
               return (
                 <tr key={`rowKeyRow${i}`}>
                   {rowKey.map(function(txt, j) {
@@ -234,16 +230,15 @@ function makeRenderer(opts = {}) {
                       </th>
                     );
                   })}
-                  {colKeys.map(function(colKey, j) {
+
+                  {/* Build row value cells for each aggregator*/
+                    colKeys.map(function(colKey, j) {
                     return pivotData.metricsList.map((metric, w) => {
-                      // console.log(`---- ${rowKey} ---- ${colKey} ----`)
-                      // console.log(metric);
                       const aggregator = pivotData.getAggregator(
                         rowKey,
                         colKey,
                         metric.name
                       );
-                      // console.log(aggregator);
                       return (
                         <td
                           className="pvtVal"
@@ -264,8 +259,13 @@ function makeRenderer(opts = {}) {
                     });
                   })}
 
-                  {pivotData.metricsList.map((metric, w) => {
-                    const totalAggregator = pivotData.getAggregator(rowKey, [], metric.name);
+                  {/* Build row rotals cells for each aggregator*/
+                  pivotData.metricsList.map((metric, w) => {
+                    const totalAggregator = pivotData.getAggregator(
+                      rowKey,
+                      [],
+                      metric.name
+                    );
                     return (
                       <td
                         className="pvtTotal"
