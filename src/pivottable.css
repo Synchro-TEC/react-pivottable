@@ -3,7 +3,7 @@
   border-collapse: collapse;
   overflow: scroll;
   width: 100%;
-  margin: 0 !important;
+  margin: 10px 0px !important;
 }
 .pvtCol {
   overflow: auto;

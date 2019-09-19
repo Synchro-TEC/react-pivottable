@@ -1,3 +1,4 @@
+/* eslint-disable no-inline-comments */
 import React from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
@@ -546,14 +547,14 @@ class PivotTableUI extends React.PureComponent {
     if (horizUnused) {
       return (
         <React.Fragment>
-          <table className="pvtUi">
+          {/* <table className="pvtUi">
             <tbody onClick={() => this.setState({openDropdown: false})}>
               <tr>
-                {/* rendererCell*/}
-                {/* aggregatorCell*/}
+                { rendererCell}
+                { aggregatorCell}
               </tr>
             </tbody>
-          </table>
+      </table>*/}
 
           <div
             style={{
