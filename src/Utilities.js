@@ -617,7 +617,8 @@ class PivotData {
     this.tree = {};
     this.rowKeys = [];
     this.colKeys = [];
-    this.rowTotals = {};
+    // this.rowTotals = {};
+    this.rowTotals = [];
     this.colTotals = {};
     this.allTotal =
       this.props.aggregatorName === 'Multiple'
@@ -741,12 +742,15 @@ class PivotData {
     if (rowKey.length !== 0) {
       if (!this.rowTotals[flatRowKey]) {
         this.rowKeys.push(rowKey);
-        this.rowTotals[flatRowKey] =
-          this.props.aggregatorName === 'Multiple'
-            ? this.aggregator(this, rowKey, [])[0]
-            : this.aggregator(this, rowKey, []);
+        this.rowTotals[flatRowKey] = this.aggregator(this, rowKey, []);
+        // this.props.aggregatorName === 'Multiple'
+        //  ? this.aggregator(this, rowKey, [])[0]
+        //   : this.aggregator(this, rowKey, []);
       }
-      this.rowTotals[flatRowKey].push(record);
+      for (const e of this.rowTotals[flatRowKey]) {
+        e.push(record);
+      }
+      //  this.rowTotals[flatRowKey].push(record);
     }
 
     if (colKey.length !== 0) {
@@ -765,7 +769,7 @@ class PivotData {
         this.tree[flatRowKey] = {};
       }
       if (!this.tree[flatRowKey][flatColKey]) {
-       // console.log(this.aggregator(this, rowKey, colKey));
+        // console.log(this.aggregator(this, rowKey, colKey));
         this.tree[flatRowKey][flatColKey] = this.aggregator(
           this,
           rowKey,
@@ -792,13 +796,18 @@ class PivotData {
     } else if (rowKey.length === 0) {
       agg = this.colTotals[flatColKey];
     } else if (colKey.length === 0) {
-      agg = this.rowTotals[flatRowKey];
+      for (const e of this.rowTotals[flatRowKey]) {
+        if (e.attr === attr) {
+          agg = e;
+          break;
+        }
+      }
+      //  agg = this.rowTotals[flatRowKey];
     } else {
       // console.log(this.tree[flatRowKey][flatColKey]);
       if (this.tree[flatRowKey][flatColKey]) {
         for (const e of this.tree[flatRowKey][flatColKey]) {
           if (e.attr === attr) {
-           // console.log(e);
             agg = e;
             break;
           }

@@ -59,7 +59,7 @@ function makeRenderer(opts = {}) {
       const colAttrs = pivotData.props.cols;
       const rowAttrs = pivotData.props.rows;
       const metricAttr = pivotData.props.metrics;
-      const metricAggAttr= pivotData.props.mettricsAggregators;
+      const metricAggAttr = pivotData.props.mettricsAggregators;
       const rowKeys = pivotData.getRowKeys();
       const colKeys = pivotData.getColKeys();
       const grandTotalAggregator = pivotData.getAggregator([], [], null);
@@ -170,7 +170,7 @@ function makeRenderer(opts = {}) {
                     pivotData.metricsList.map((m, i) => {
                       return (
                         <th
-                        key={`${m.name}_${i}`}
+                          key={`${m.name}_${i}`}
                           className="pvtTotalLabel"
                           rowSpan={
                             colAttrs.length + (rowAttrs.length === 0 ? 0 : 1)
@@ -211,7 +211,7 @@ function makeRenderer(opts = {}) {
 
           <tbody>
             {rowKeys.map(function(rowKey, i) {
-              const totalAggregator = pivotData.getAggregator(rowKey, [], null);
+             
               return (
                 <tr key={`rowKeyRow${i}`}>
                   {rowKey.map(function(txt, j) {
@@ -263,16 +263,25 @@ function makeRenderer(opts = {}) {
                       );
                     });
                   })}
-                  <td
-                    className="pvtTotal"
-                    onClick={
-                      getClickHandler &&
-                      getClickHandler(totalAggregator.value(), rowKey, [null])
-                    }
-                    style={colTotalColors(totalAggregator.value())}
-                  >
-                    {totalAggregator.format(totalAggregator.value())}
-                  </td>
+
+                  {pivotData.metricsList.map((metric, w) => {
+                    const totalAggregator = pivotData.getAggregator(rowKey, [], metric.name);
+                    return (
+                      <td
+                        className="pvtTotal"
+                        key={`${metric.name}_${w}`}
+                        onClick={
+                          getClickHandler &&
+                          getClickHandler(totalAggregator.value(), rowKey, [
+                            null,
+                          ])
+                        }
+                        style={colTotalColors(totalAggregator.value())}
+                      >
+                        {totalAggregator.format(totalAggregator.value())}
+                      </td>
+                    );
+                  })}
                 </tr>
               );
             })}
