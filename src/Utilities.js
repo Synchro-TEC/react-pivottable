@@ -772,7 +772,9 @@ class PivotData {
       }
       if (this.tree[flatRowKey][flatColKey].length) {
         this.tree[flatRowKey][flatColKey].forEach(a => {
-          a.push(record);
+          if ('push' in a) {
+            a.push(record);
+          }
         });
       } else {
         this.tree[flatRowKey][flatColKey].push(record);
