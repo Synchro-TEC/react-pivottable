@@ -379,7 +379,7 @@ const aggregatorTemplates = {
                 sum: 0,
                 push(record) {
                   if (!isNaN(parseFloat(record[m]))) {
-                    this.sum += parseFloat(record[m].replace(/,/, '.'));
+                    this.sum += parseFloat(String(record[m]).replace(/,/, '.'));
                   }
                 },
                 value() {
