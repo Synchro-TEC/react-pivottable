@@ -63,7 +63,6 @@ function makeRenderer(opts = {}) {
       const metricAggAttr = pivotData.props.mettricsAggregators;
       const rowKeys = pivotData.getRowKeys();
       const colKeys = pivotData.getColKeys();
-      const grandTotalAggregator = pivotData.getAggregator([], [], null);
 
       let valueCellColors = () => {};
       let rowTotalColors = () => {};
@@ -317,16 +316,29 @@ function makeRenderer(opts = {}) {
                 });
               })}
 
-              <td
-                onClick={
-                  getClickHandler &&
-                  getClickHandler(grandTotalAggregator.value(), [null], [null])
-                }
-                className="pvtGrandTotal"
-              >
-                {grandTotalAggregator.format(grandTotalAggregator.value())}
-              
-              </td>
+              {pivotData.metricsList.map((metric, w) => {
+                const grandTotalAggregator = pivotData.getAggregator(
+                  [],
+                  [],
+                  metric.name
+                );
+                return (
+                  <td
+                    key={`grandTotal_${metric.name}_${w}`}
+                    onClick={
+                      getClickHandler &&
+                      getClickHandler(
+                        grandTotalAggregator.value(),
+                        [null],
+                        [null]
+                      )
+                    }
+                    className="pvtGrandTotal"
+                  >
+                    {grandTotalAggregator.format(grandTotalAggregator.value())}
+                  </td>
+                );
+              })}
             </tr>
           </tbody>
         </table>

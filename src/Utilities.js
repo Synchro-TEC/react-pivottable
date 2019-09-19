@@ -621,10 +621,7 @@ class PivotData {
     this.rowTotals = [];
     // this.colTotals = {};
     this.colTotals = [];
-    this.allTotal =
-      this.props.aggregatorName === 'Multiple'
-        ? this.aggregator(this, [], [])[0]
-        : this.aggregator(this, [], []);
+    this.allTotal = this.aggregator(this, [], []);
     this.sorted = false;
 
     // iterate through input, accumulating data for cells
@@ -738,35 +735,28 @@ class PivotData {
     const flatRowKey = rowKey.join(String.fromCharCode(0));
     const flatColKey = colKey.join(String.fromCharCode(0));
 
-    this.allTotal.push(record);
+    for (const e of this.allTotal) {
+      e.push(record);
+    }
 
     if (rowKey.length !== 0) {
       if (!this.rowTotals[flatRowKey]) {
         this.rowKeys.push(rowKey);
         this.rowTotals[flatRowKey] = this.aggregator(this, rowKey, []);
-        // this.props.aggregatorName === 'Multiple'
-        //  ? this.aggregator(this, rowKey, [])[0]
-        //   : this.aggregator(this, rowKey, []);
       }
       for (const e of this.rowTotals[flatRowKey]) {
         e.push(record);
       }
-      //  this.rowTotals[flatRowKey].push(record);
     }
 
     if (colKey.length !== 0) {
       if (!this.colTotals[flatColKey]) {
         this.colKeys.push(colKey);
-        this.colTotals[flatColKey] =
-          // this.props.aggregatorName === 'Multiple'
-          // ? this.aggregator(this, [], colKey)[0]
-          //  : this.aggregator(this, [], colKey);
-          this.aggregator(this, [], colKey);
+        this.colTotals[flatColKey] = this.aggregator(this, [], colKey);
       }
       for (const e of this.colTotals[flatColKey]) {
         e.push(record);
       }
-      // this.colTotals[flatColKey].push(record);
     }
 
     if (colKey.length !== 0 && rowKey.length !== 0) {
@@ -774,7 +764,6 @@ class PivotData {
         this.tree[flatRowKey] = {};
       }
       if (!this.tree[flatRowKey][flatColKey]) {
-        // console.log(this.aggregator(this, rowKey, colKey));
         this.tree[flatRowKey][flatColKey] = this.aggregator(
           this,
           rowKey,
@@ -783,7 +772,6 @@ class PivotData {
       }
       if (this.tree[flatRowKey][flatColKey].length) {
         this.tree[flatRowKey][flatColKey].forEach(a => {
-          // console.log(a);
           a.push(record);
         });
       } else {
@@ -797,7 +785,12 @@ class PivotData {
     const flatRowKey = rowKey.join(String.fromCharCode(0));
     const flatColKey = colKey.join(String.fromCharCode(0));
     if (rowKey.length === 0 && colKey.length === 0) {
-      agg = this.allTotal;
+      for (const e of this.allTotal) {
+        if (e.attr === attr) {
+          agg = e;
+          break;
+        }
+      }
     } else if (rowKey.length === 0) {
       for (const e of this.colTotals[flatColKey]) {
         if (e.attr === attr) {
@@ -805,7 +798,6 @@ class PivotData {
           break;
         }
       }
-      // agg = this.colTotals[flatColKey];
     } else if (colKey.length === 0) {
       for (const e of this.rowTotals[flatRowKey]) {
         if (e.attr === attr) {
@@ -813,9 +805,7 @@ class PivotData {
           break;
         }
       }
-      //  agg = this.rowTotals[flatRowKey];
     } else {
-      // console.log(this.tree[flatRowKey][flatColKey]);
       if (this.tree[flatRowKey][flatColKey]) {
         for (const e of this.tree[flatRowKey][flatColKey]) {
           if (e.attr === attr) {
@@ -825,7 +815,6 @@ class PivotData {
         }
       }
     }
-    // console.log(agg);
     return (
       agg || {
         value() {
