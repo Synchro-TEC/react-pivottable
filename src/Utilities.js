@@ -619,7 +619,8 @@ class PivotData {
     this.colKeys = [];
     // this.rowTotals = {};
     this.rowTotals = [];
-    this.colTotals = {};
+    // this.colTotals = {};
+    this.colTotals = [];
     this.allTotal =
       this.props.aggregatorName === 'Multiple'
         ? this.aggregator(this, [], [])[0]
@@ -757,11 +758,15 @@ class PivotData {
       if (!this.colTotals[flatColKey]) {
         this.colKeys.push(colKey);
         this.colTotals[flatColKey] =
-          this.props.aggregatorName === 'Multiple'
-            ? this.aggregator(this, [], colKey)[0]
-            : this.aggregator(this, [], colKey);
+          // this.props.aggregatorName === 'Multiple'
+          // ? this.aggregator(this, [], colKey)[0]
+          //  : this.aggregator(this, [], colKey);
+          this.aggregator(this, [], colKey);
       }
-      this.colTotals[flatColKey].push(record);
+      for (const e of this.colTotals[flatColKey]) {
+        e.push(record);
+      }
+      // this.colTotals[flatColKey].push(record);
     }
 
     if (colKey.length !== 0 && rowKey.length !== 0) {
@@ -794,7 +799,13 @@ class PivotData {
     if (rowKey.length === 0 && colKey.length === 0) {
       agg = this.allTotal;
     } else if (rowKey.length === 0) {
-      agg = this.colTotals[flatColKey];
+      for (const e of this.colTotals[flatColKey]) {
+        if (e.attr === attr) {
+          agg = e;
+          break;
+        }
+      }
+      // agg = this.colTotals[flatColKey];
     } else if (colKey.length === 0) {
       for (const e of this.rowTotals[flatRowKey]) {
         if (e.attr === attr) {
