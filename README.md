@@ -261,3 +261,5 @@ const data = function(callback) {
     //...
 };
 ```
+
+synchro
