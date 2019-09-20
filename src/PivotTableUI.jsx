@@ -108,7 +108,6 @@ class PivotTableUI extends React.PureComponent {
   }
 
   setMetricAggregator(attribute, agg) {
-    console.log(attribute + ' ' + agg);
     this.sendPropUpdate({
       metricsAggregators: {[attribute]: {$set: agg}},
     });
@@ -370,8 +369,6 @@ class PivotTableUI extends React.PureComponent {
         />
       </td>
     );
-
-    console.log(this.props.metricsAggregators);
 
     if (horizUnused) {
       return (
